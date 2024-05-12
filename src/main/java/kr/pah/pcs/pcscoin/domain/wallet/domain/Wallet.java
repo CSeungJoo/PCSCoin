@@ -21,6 +21,9 @@ public class Wallet {
     @Column
     private BigDecimal money;
 
+    @Column
+    private boolean isDelete;
+
     @OneToOne(mappedBy = "wallet")
     private Wallet owner;
 }

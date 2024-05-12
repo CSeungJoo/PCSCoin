@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -19,13 +20,17 @@ public class TradeLog {
     private long idx;
 
     @Column
-    private LocalDate tradeDate;
+    private LocalDateTime tradeDate;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private TradeType tradeType;
 
     @Column
     private BigDecimal price;
+
+    @Column
+    private boolean isDelete;
 
     @OneToOne
     @JoinColumn(name = "buy_wallet_id")
