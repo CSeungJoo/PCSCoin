@@ -45,6 +45,9 @@ public class User {
     @Column
     private boolean isDelete;
 
+    @Column
+    private String token;
+
     @OneToOne
     @JoinColumn(name = "wallet_idx")
     private Wallet wallet;
