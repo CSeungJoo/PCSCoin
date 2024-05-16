@@ -5,40 +5,41 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
-import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
 import kr.pah.pcs.pcscoin.domain.user.service.UserService;
 import kr.pah.pcs.pcscoin.global.common.TokenUtils;
 import kr.pah.pcs.pcscoin.global.service.RedisTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.token.TokenService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @RequiredArgsConstructor
+@Order(1)
+@Component
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-    private final RedisTokenService redisTokenService;
     private final UserService userService;
     private final TokenUtils tokenUtils;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = extractUserId(request);
+        String token = extractToken(request);
 
         if (token != null) {
 
             if (tokenUtils.validateToken(token)) {
-                response.addHeader("token", token);
+                saveAuthentication(userService.getUserByToken(token));
             }
         }
         filterChain.doFilter(request, response);
     }
 
-    private String extractUserId(HttpServletRequest request) {
-        // 요청에서 UUID 추출하는 로직
-        // 실제 구현은 프로젝트의 요구 사항에 따라 다를 수 있음
+    private String extractToken(HttpServletRequest request) {
         String token = request.getHeader("token");
         if (token != null) {
             return token;
@@ -46,10 +47,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private Authentication authentication(String token) {
-        return (Authentication) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+    public void saveAuthentication(User myUser) {
+        String password = myUser.getPassword();
+
+        UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
+                .username(myUser.getEmail())
+                .password(password)
+                .roles(myUser.getRole().name())
+                .build();
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userDetailsUser, null, userDetailsUser.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

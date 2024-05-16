@@ -4,18 +4,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@Order(2)
 public class JsonAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     private static final String DEFAULT_LOGIN_REQUEST_URL = "/login";  // /login/oauth2/ + ????? 로 오는 요청을 처리할 것이다
@@ -28,10 +32,10 @@ public class JsonAuthenticationFilter extends AbstractAuthenticationProcessingFi
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
             new AntPathRequestMatcher(DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD); //=>   /login 의 요청에, POST로 온 요청에 매칭
 
-    public JsonAuthenticationFilter(ObjectMapper objectMapper) {
+    public JsonAuthenticationFilter(ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
 
         super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER);   // 위에서 설정한  /oauth2/login/* 의 요청에, GET으로 온 요청을 처리하기 위해 설정
-
+        setAuthenticationManager(authenticationManager);
         this.objectMapper = objectMapper;
     }
 
@@ -52,4 +56,6 @@ public class JsonAuthenticationFilter extends AbstractAuthenticationProcessingFi
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
+
+
 }
