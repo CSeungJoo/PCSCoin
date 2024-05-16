@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Getter
 public class TradeLog {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

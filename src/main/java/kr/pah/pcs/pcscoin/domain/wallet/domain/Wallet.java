@@ -1,6 +1,7 @@
 package kr.pah.pcs.pcscoin.domain.wallet.domain;
 
 import jakarta.persistence.*;
+import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -9,7 +10,6 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Getter
 public class Wallet {
     @Id
@@ -25,5 +25,5 @@ public class Wallet {
     private boolean isDelete;
 
     @OneToOne(mappedBy = "wallet")
-    private Wallet owner;
+    private User owner;
 }

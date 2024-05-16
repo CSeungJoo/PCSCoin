@@ -13,7 +13,6 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Getter
 public class User {
     @Id @GeneratedValue
