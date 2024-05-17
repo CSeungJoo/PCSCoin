@@ -3,6 +3,7 @@ package kr.pah.pcs.pcscoin.domain.user.service;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
 import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
+import kr.pah.pcs.pcscoin.global.security.config.SecurityConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -17,10 +18,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
-    @Autowired
-    @Lazy
-    private BCryptPasswordEncoder pwdEncoder;
     private final UserRepository userRepository;
+    private final PasswordEncoder pwdEncoder;
 
     public User getUser(UUID userId) {
         return userRepository.findById(userId).orElseThrow(
@@ -43,6 +42,7 @@ public class UserService {
     public User createUser(CreateUserDto createUserDto) {
 
 
+        System.out.println(createUserDto.getPassword());
         User user = User.builder()
                 .email(createUserDto.getEmail())
                 .password(pwdEncoder.encode(createUserDto.getPassword()))

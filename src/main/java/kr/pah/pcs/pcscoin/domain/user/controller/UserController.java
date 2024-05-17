@@ -1,5 +1,6 @@
 package kr.pah.pcs.pcscoin.domain.user.controller;
 
+import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
 import kr.pah.pcs.pcscoin.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody CreateUserDto createUserDto) {
-        userService.createUser(createUserDto);
-        return null;
+        User user = userService.createUser(createUserDto);
+        return ResponseEntity.ok(user);
     }
 }

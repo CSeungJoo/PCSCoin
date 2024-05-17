@@ -4,17 +4,21 @@ import jakarta.persistence.*;
 import kr.pah.pcs.pcscoin.domain.model.Role;
 import kr.pah.pcs.pcscoin.domain.model.UserType;
 import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
+import kr.pah.pcs.pcscoin.global.common.TokenUtils;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Base64;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User {
+
     @Id @GeneratedValue
     private UUID idx;
 
@@ -56,5 +60,6 @@ public class User {
         isDelete = false;
         if (role == null)
             role = Role.USER;
+        token = Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes());
     }
 }

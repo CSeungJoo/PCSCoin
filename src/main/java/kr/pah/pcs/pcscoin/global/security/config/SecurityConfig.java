@@ -1,6 +1,7 @@
 package kr.pah.pcs.pcscoin.global.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
 import kr.pah.pcs.pcscoin.domain.user.service.UserService;
 import kr.pah.pcs.pcscoin.global.common.TokenUtils;
 import kr.pah.pcs.pcscoin.global.security.auth.PrincipalDetailsService;
@@ -18,21 +19,21 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.stereotype.Component;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final PrincipalDetailsService principalDetailsService;
+//    private final UserRepository userRepository;
+//    private final TokenUtils tokenUtils;
     private final ObjectMapper objectMapper;
-    private final UserService userService;
-    private final TokenUtils tokenUtils;
+    private final PrincipalDetailsService principalDetailsService;
 
     @Bean
     public BCryptPasswordEncoder encoderPwd() {
@@ -65,11 +66,12 @@ public class SecurityConfig {
         return jsonUsernamePasswordLoginFilter;
     }
 
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
-        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(userService, tokenUtils);
-        return tokenAuthenticationFilter;
-    }
+
+//    @Bean
+//    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
+//        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(userRepository, tokenUtils);
+//        return tokenAuthenticationFilter;
+//    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -79,9 +81,17 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/logout", "/register").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .addFilterAfter(tokenAuthenticationFilter(), LogoutFilter.class)
+                .formLogin(form -> form
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .loginProcessingUrl("/login")
+                        .successHandler(new LoginSuccessHandler())
+                        .failureHandler(new LoginFailureHandler())
+                        .defaultSuccessUrl("/")
+                        .disable()
+                )
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
+//                .addFilterAfter(tokenAuthenticationFilter(), LogoutFilter.class)
                 .logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer
                         .logoutSuccessUrl("/")
                 )
