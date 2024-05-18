@@ -73,9 +73,16 @@ public class UserService {
         
         mailService.sendEmail(createUserDto.getEmail()
                 ,"본인확인용 메일발송"
-                ,"본인이라면 "+ url + Arrays.toString(Base64.getEncoder().encode(user.getIdx().toString().getBytes())) + " 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
+                ,"본인이라면 "+ url +"?valid="+ Arrays.toString(Base64.getEncoder().encode(user.getIdx().toString().getBytes())) + " 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
 
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public void activeUser(String encodeIdx) {
+        User user = getUser(UUID.fromString(Arrays.toString(Base64.getDecoder().decode(encodeIdx.getBytes()))));
+
+        user.accountActive();
     }
 
 }

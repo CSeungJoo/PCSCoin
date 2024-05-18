@@ -66,4 +66,8 @@ public class User {
             role = Role.USER;
         token = Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes());
     }
+
+    public void accountActive() {
+        isActive = true;
+    }
 }
