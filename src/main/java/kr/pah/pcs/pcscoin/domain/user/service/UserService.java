@@ -4,14 +4,18 @@ import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
 import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
 import kr.pah.pcs.pcscoin.global.security.config.SecurityConfig;
+import kr.pah.pcs.pcscoin.global.service.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -19,7 +23,10 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder pwdEncoder;
+    private final MailService mailService;
+
+    @Value("${url}")
+    private String url;
 
     public User getUser(UUID userId) {
         return userRepository.findById(userId).orElseThrow(
@@ -38,11 +45,24 @@ public class UserService {
         );
     }
 
+    public boolean alreadyExistsEmail(String email) {
+        try {
+            User user = getUserByEmail(email);
+            return true;
+        }catch (IllegalStateException e) {
+            return false;
+        }
+
+
+    }
+
     @Transactional
     public User createUser(CreateUserDto createUserDto) {
 
+        if (alreadyExistsEmail(createUserDto.getEmail()))
+            throw new IllegalStateException("이미 존재하는 이메일 입니다.");
 
-        System.out.println(createUserDto.getPassword());
+        BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
         User user = User.builder()
                 .email(createUserDto.getEmail())
                 .password(pwdEncoder.encode(createUserDto.getPassword()))
@@ -50,7 +70,12 @@ public class UserService {
                 .nickname(createUserDto.getNickname())
                 .phone(createUserDto.getPhone())
                 .build();
+        
+        mailService.sendEmail(createUserDto.getEmail()
+                ,"본인확인용 메일발송"
+                ,"본인이라면 "+ url + Arrays.toString(Base64.getEncoder().encode(user.getIdx().toString().getBytes())) + " 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
 
         return userRepository.save(user);
     }
+
 }

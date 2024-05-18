@@ -49,6 +49,9 @@ public class User {
     private boolean isDelete;
 
     @Column
+    private boolean isActive;
+
+    @Column
     private String token;
 
     @OneToOne
@@ -58,6 +61,7 @@ public class User {
     @PrePersist
     public void init() {
         isDelete = false;
+        isActive = false;
         if (role == null)
             role = Role.USER;
         token = Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes());
