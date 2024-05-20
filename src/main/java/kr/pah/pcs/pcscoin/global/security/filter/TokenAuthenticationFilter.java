@@ -45,6 +45,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractToken(HttpServletRequest request) {
+        if (request.getCookies() == null)
+            return null;
         String token = Arrays.stream(request.getCookies())
                 .filter(cookie -> cookie.getName().equals("token"))
                 .map(Cookie::getValue)

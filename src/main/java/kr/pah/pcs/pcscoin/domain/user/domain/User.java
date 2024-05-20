@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import kr.pah.pcs.pcscoin.domain.model.Role;
 import kr.pah.pcs.pcscoin.domain.model.UserType;
 import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
-import kr.pah.pcs.pcscoin.global.common.TokenUtils;
+import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -19,7 +18,7 @@ import java.util.UUID;
 @Getter
 public class User {
 
-    @Id @GeneratedValue
+    @Id
     private UUID idx;
 
     @Column
@@ -59,12 +58,15 @@ public class User {
     private Wallet wallet;
 
     @PrePersist
-    public void init() {
+    public void init() throws Exception {
+        idx = UUID.randomUUID();
         isDelete = false;
         isActive = false;
+        if(userType == null)
+            userType = UserType.USER;
         if (role == null)
             role = Role.USER;
-        token = Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes());
+        token = SecurityUtils.hashing(Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes()));
     }
 
     public void accountActive() {

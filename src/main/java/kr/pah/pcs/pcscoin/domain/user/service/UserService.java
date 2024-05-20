@@ -3,18 +3,14 @@ package kr.pah.pcs.pcscoin.domain.user.service;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
 import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
-import kr.pah.pcs.pcscoin.global.security.config.SecurityConfig;
+import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import kr.pah.pcs.pcscoin.global.service.MailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -45,6 +41,11 @@ public class UserService {
         );
     }
 
+    @Transactional
+    public void removeUser(User user) {
+        userRepository.delete(user);
+    }
+
     public boolean alreadyExistsEmail(String email) {
         try {
             User user = getUserByEmail(email);
@@ -57,30 +58,32 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(CreateUserDto createUserDto) {
+    public User createUser(CreateUserDto createUserDto) throws NoSuchAlgorithmException {
 
         if (alreadyExistsEmail(createUserDto.getEmail()))
             throw new IllegalStateException("이미 존재하는 이메일 입니다.");
 
-        BCryptPasswordEncoder pwdEncoder = new BCryptPasswordEncoder();
         User user = User.builder()
                 .email(createUserDto.getEmail())
-                .password(pwdEncoder.encode(createUserDto.getPassword()))
+                .password(createUserDto.getPassword())
                 .name(createUserDto.getName())
                 .nickname(createUserDto.getNickname())
                 .phone(createUserDto.getPhone())
                 .build();
-        
+        User saveUser = userRepository.save(user);
+
         mailService.sendEmail(createUserDto.getEmail()
                 ,"본인확인용 메일발송"
-                ,"본인이라면 "+ url +"?valid="+ Arrays.toString(Base64.getEncoder().encode(user.getIdx().toString().getBytes())) + " 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
+                ,"본인이라면 "+ url +"?valid="+ SecurityUtils.hashing(saveUser.getIdx().toString()) +" 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
 
-        return userRepository.save(user);
+        return saveUser;
     }
 
     @Transactional
     public void activeUser(String encodeIdx) {
-        User user = getUser(UUID.fromString(Arrays.toString(Base64.getDecoder().decode(encodeIdx.getBytes()))));
+        byte[] decode = Base64.getDecoder().decode(encodeIdx);
+        UUID userIdx = UUID.fromString(new String(decode));
+        User user = getUser(userIdx);
 
         user.accountActive();
     }

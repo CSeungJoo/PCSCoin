@@ -1,6 +1,7 @@
-package kr.pah.pcs.pcscoin.domain.user.domain;
+package kr.pah.pcs.pcscoin.domain.user.dto;
 
 import kr.pah.pcs.pcscoin.domain.model.UserType;
+import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.wallet.dto.ReturnWalletDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,7 @@ public class ReturnUserDto {
         this.email = user.getEmail();
         this.phone = user.getPhone();
         this.userType = user.getUserType();
-        this.wallet = new ReturnWalletDto(user.getWallet());
+        if(wallet != null)
+            this.wallet = new ReturnWalletDto(user.getWallet());
     }
 }
