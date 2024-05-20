@@ -72,4 +72,8 @@ public class User {
     public void accountActive() {
         isActive = true;
     }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
 }
