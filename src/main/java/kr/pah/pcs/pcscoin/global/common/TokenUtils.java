@@ -21,10 +21,9 @@ import java.util.UUID;
 @Component
 public class TokenUtils {
 
-//    private static final byte[] secretBytes = Base64.getDecoder().decode("your_secret_key_in_base64");
-//    private static final Key SECRET_KEY = new SecretKeySpec(secretBytes, "HmacSHA256");
-
-    private final UserService userService;
+    @Autowired
+    @Lazy
+    private UserService userService;
 
     public boolean validateToken(String token) {
         return !userService.getUserByToken(token).isDelete();

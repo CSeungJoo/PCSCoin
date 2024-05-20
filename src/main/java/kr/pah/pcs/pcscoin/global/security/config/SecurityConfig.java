@@ -30,8 +30,8 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    private final UserRepository userRepository;
-//    private final TokenUtils tokenUtils;
+    private final UserService userService;
+    private final TokenUtils tokenUtils;
     private final ObjectMapper objectMapper;
     private final PrincipalDetailsService principalDetailsService;
 
@@ -68,17 +68,17 @@ public class SecurityConfig {
 
 
 //    @Bean
-//    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
-//        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(userRepository, tokenUtils);
-//        return tokenAuthenticationFilter;
-//    }
+    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
+        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(userService, tokenUtils);
+        return tokenAuthenticationFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/login", "/logout", "/register").permitAll()
+                        .requestMatchers("/login", "/logout", "/register", "/active").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -91,7 +91,7 @@ public class SecurityConfig {
                         .disable()
                 )
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
-//                .addFilterAfter(tokenAuthenticationFilter(), LogoutFilter.class)
+                .addFilterAfter(tokenAuthenticationFilter(), LogoutFilter.class)
                 .logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer
                         .logoutSuccessUrl("/")
                 )
