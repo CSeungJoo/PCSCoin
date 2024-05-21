@@ -43,7 +43,8 @@ public class UserService {
 
     @Transactional
     public void removeUser(User user) {
-        userRepository.delete(user);
+        if (user != null)
+            userRepository.delete(user);
     }
 
     public boolean alreadyExistsEmail(String email) {
@@ -74,7 +75,7 @@ public class UserService {
 
         mailService.sendEmail(createUserDto.getEmail()
                 ,"본인확인용 메일발송"
-                ,"본인이라면 "+ url +"?valid="+ SecurityUtils.hashing(saveUser.getIdx().toString()) +" 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
+                ,"본인이라면 "+ url +"/active?active="+ Base64.getEncoder().encodeToString(saveUser.getIdx().toString().getBytes()) +" 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
 
         return saveUser;
     }

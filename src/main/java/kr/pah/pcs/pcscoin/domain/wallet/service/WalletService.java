@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +27,12 @@ public class WalletService {
         Wallet wallet = Wallet.builder()
                 .name(user.getName() + "'s wallet")
                 .money(new BigDecimal(0))
-                .owner(user)
+                .user(user)
                 .build();
 
         Wallet saveWallet = walletRepository.save(wallet);
 
-        user.setWallet(wallet);
+        user.addWallet(wallet);
 
         userRepository.save(user);
 
@@ -45,20 +46,33 @@ public class WalletService {
     }
 
     @Transactional
-    public void deleteWallet(User user) {
-        Wallet wallet = user.getWallet();
+    public void deleteWalletByUser(User user) {
+        Wallet wallet = getWalletByUser(user);
 
         wallet.deleteWallet();
-        user.setWallet(null);
+        user.addWallet(null);
 
         walletRepository.save(wallet);
         userRepository.save(user);
     }
 
     public Wallet getWalletByUser(User user) {
-        if(user.getWallet() == null)
+        List<Wallet> wallets = walletRepository.getWalletsByUser(user);
+        if(wallets == null)
             throw new IllegalStateException("사용자 소유의 지갑이 없습니다.");
 
-        return user.getWallet();
+        for (Wallet wallet : wallets) {
+            if(isAvailableWallet(wallet))
+                return wallet;
+        }
+
+        throw new IllegalStateException("사용자 소유의 지갑이 없습니다.");
+    }
+
+    public boolean isAvailableWallet(Wallet wallet) {
+        if (wallet == null || wallet.isDelete())
+            return false;
+
+        return true;
     }
 }

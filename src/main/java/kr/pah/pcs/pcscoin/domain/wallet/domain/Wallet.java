@@ -5,6 +5,7 @@ import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -25,8 +26,9 @@ public class Wallet {
     @Column
     private boolean isDelete;
 
-    @OneToOne(mappedBy = "wallet")
-    private User owner;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "users_idx", unique = false)
+    private User user;
 
     @PrePersist
     public void init() {

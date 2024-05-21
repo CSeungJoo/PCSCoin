@@ -8,6 +8,7 @@ import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import lombok.*;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -53,9 +54,8 @@ public class User {
     @Column
     private String token;
 
-    @OneToOne
-    @JoinColumn(name = "wallet_idx")
-    private Wallet wallet;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<Wallet> wallet;
 
     @PrePersist
     public void init() throws Exception {
@@ -73,7 +73,7 @@ public class User {
         isActive = true;
     }
 
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
+    public void addWallet(Wallet wallet) {
+        this.wallet.add(wallet);
     }
 }

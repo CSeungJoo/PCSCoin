@@ -31,6 +31,6 @@ public class ReturnUserDto {
         this.phone = user.getPhone();
         this.userType = user.getUserType();
         if(wallet != null)
-            this.wallet = new ReturnWalletDto(user.getWallet());
+            this.wallet = new ReturnWalletDto(user.getWallet().stream().filter(wallet -> !wallet.isDelete()).findFirst().orElseThrow());
     }
 }
