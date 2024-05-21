@@ -9,6 +9,7 @@ import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
 import kr.pah.pcs.pcscoin.domain.user.service.UserService;
 import kr.pah.pcs.pcscoin.global.common.TokenUtils;
+import kr.pah.pcs.pcscoin.global.security.auth.PrincipalDetails;
 import kr.pah.pcs.pcscoin.global.service.RedisTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,14 +62,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     public void saveAuthentication(User myUser) {
         String password = myUser.getPassword();
 
-        UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-                .username(myUser.getEmail())
-                .password(password)
-                .roles(myUser.getRole().name())
-                .build();
+        PrincipalDetails userDetailsUser = new PrincipalDetails(myUser);
 
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userDetailsUser, null, userDetailsUser.getAuthorities());
+                new UsernamePasswordAuthenticationToken(userDetailsUser, password, userDetailsUser.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
