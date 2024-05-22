@@ -1,9 +1,11 @@
 package kr.pah.pcs.pcscoin.domain.user.service;
 
+import jakarta.persistence.EntityManager;
 import kr.pah.pcs.pcscoin.domain.model.Grade;
 import kr.pah.pcs.pcscoin.domain.user.domain.StudentId;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
+import kr.pah.pcs.pcscoin.domain.user.repository.StudentIdRepository;
 import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
 import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import kr.pah.pcs.pcscoin.global.service.MailService;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
+    private final StudentIdRepository studentIdRepository;
     private final MailService mailService;
 
     @Value("${url}")
@@ -61,7 +64,7 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(CreateUserDto createUserDto) throws NoSuchAlgorithmException {
+    public User createUser(CreateUserDto createUserDto) {
 
         if (alreadyExistsEmail(createUserDto.getEmail()))
             throw new IllegalStateException("이미 존재하는 이메일 입니다.");
@@ -73,20 +76,25 @@ public class UserService {
                 .nickname(createUserDto.getNickname())
                 .phone(createUserDto.getPhone())
                 .build();
-        User saveUser = userRepository.save(user);
 
+        userRepository.save(user);
+
+        user.initStudentsId();
         for (int i = 0; i < 3; i++) {
-            saveUser.addStudentId(StudentId.builder()
-                            .grade(i == 0 ? Grade.FIRST : i == 1 ? Grade.SECOND : Grade.THIRD)
-                            .studentId("")
-                            .build());
+            StudentId studentId = studentIdRepository.save(StudentId.builder()
+                    .grade(i == 0 ? Grade.FIRST : i == 1 ? Grade.SECOND : Grade.THIRD)
+                    .studentId("")
+                    .user(user)
+                    .build());
+
+            user.addStudentId(studentId);
         }
 
         mailService.sendEmail(createUserDto.getEmail()
                 ,"본인확인용 메일발송"
-                ,"본인이라면 "+ url +"/active?active="+ Base64.getEncoder().encodeToString(saveUser.getIdx().toString().getBytes()) +" 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
+                ,"본인이라면 "+ url +"/active?active="+ Base64.getEncoder().encodeToString(user.getIdx().toString().getBytes()) +" 클릭해주세요 \n 아니라면 "+ url +"에 접속하여 문의를 해주세요.");
 
-        return saveUser;
+        return user;
     }
 
     @Transactional

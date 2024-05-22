@@ -20,16 +20,13 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody CreateUserDto createUserDto) {
         createUserDto.setPassword(pwdEncoder.encode(createUserDto.getPassword()));
-        User user = null;
         try {
-            user = userService.createUser(createUserDto);
+            User user = userService.createUser(createUserDto);
             return ResponseEntity.ok(new Result<>(new ReturnUserDto(user)));
         }catch (IllegalStateException e) {
-            userService.removeUser(user);
             return ResponseEntity.ok(new Result<>(e.getMessage(), true));
         }catch (Exception e) {
-            userService.removeUser(user);
-            return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다."));
+            return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
         }
     }
 

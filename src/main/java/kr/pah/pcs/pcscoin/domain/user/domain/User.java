@@ -7,6 +7,7 @@ import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
 import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -83,5 +84,9 @@ public class User {
 
     public void addStudentId(StudentId studentId) {
         this.studentsId.add(studentId);
+    }
+
+    public void initStudentsId() {
+        this.studentsId = new ArrayList<>();
     }
 }
