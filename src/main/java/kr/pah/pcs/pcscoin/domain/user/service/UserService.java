@@ -1,5 +1,7 @@
 package kr.pah.pcs.pcscoin.domain.user.service;
 
+import kr.pah.pcs.pcscoin.domain.model.Grade;
+import kr.pah.pcs.pcscoin.domain.user.domain.StudentId;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
 import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
@@ -72,6 +74,13 @@ public class UserService {
                 .phone(createUserDto.getPhone())
                 .build();
         User saveUser = userRepository.save(user);
+
+        for (int i = 0; i < 3; i++) {
+            saveUser.addStudentId(StudentId.builder()
+                            .grade(i == 0 ? Grade.FIRST : i == 1 ? Grade.SECOND : Grade.THIRD)
+                            .studentId("")
+                            .build());
+        }
 
         mailService.sendEmail(createUserDto.getEmail()
                 ,"본인확인용 메일발송"

@@ -45,6 +45,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
     @Column
     private boolean isDelete;
 
@@ -55,7 +56,10 @@ public class User {
     private String token;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    private List<Wallet> wallet;
+    private List<StudentId> studentsId;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<Wallet> wallets;
 
     @PrePersist
     public void init() throws Exception {
@@ -74,6 +78,10 @@ public class User {
     }
 
     public void addWallet(Wallet wallet) {
-        this.wallet.add(wallet);
+        this.wallets.add(wallet);
+    }
+
+    public void addStudentId(StudentId studentId) {
+        this.studentsId.add(studentId);
     }
 }

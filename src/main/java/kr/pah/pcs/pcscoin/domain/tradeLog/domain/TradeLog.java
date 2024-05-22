@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 public class TradeLog {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idx;
+    private Long idx;
 
     @Column
     private LocalDateTime tradeDate;

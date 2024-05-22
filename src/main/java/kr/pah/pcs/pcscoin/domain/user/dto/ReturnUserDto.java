@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,6 +22,7 @@ public class ReturnUserDto {
     private String email;
     private String phone;
     private UserType userType;
+    private List<ReturnStudentIdDto> studentId;
     private ReturnWalletDto wallet;
 
     public ReturnUserDto(User user) {
@@ -30,7 +32,8 @@ public class ReturnUserDto {
         this.email = user.getEmail();
         this.phone = user.getPhone();
         this.userType = user.getUserType();
+        user.getStudentsId().forEach(student -> this.studentId.add(new ReturnStudentIdDto(student)));
         if(wallet != null)
-            this.wallet = new ReturnWalletDto(user.getWallet().stream().filter(wallet -> !wallet.isDelete()).findFirst().orElseThrow());
+            this.wallet = new ReturnWalletDto(user.getWallets().stream().filter(wallet -> !wallet.isDelete()).findFirst().orElseThrow());
     }
 }
