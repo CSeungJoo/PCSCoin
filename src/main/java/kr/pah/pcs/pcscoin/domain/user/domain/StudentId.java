@@ -26,4 +26,8 @@ public class StudentId {
     @ManyToOne
     @JoinColumn(name = "users_id")
     private User user;
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
 }

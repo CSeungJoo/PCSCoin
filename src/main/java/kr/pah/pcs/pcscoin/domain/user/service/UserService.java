@@ -5,6 +5,7 @@ import kr.pah.pcs.pcscoin.domain.model.Grade;
 import kr.pah.pcs.pcscoin.domain.user.domain.StudentId;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
+import kr.pah.pcs.pcscoin.domain.user.dto.UpdateUserInfoDto;
 import kr.pah.pcs.pcscoin.domain.user.repository.StudentIdRepository;
 import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
 import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
@@ -104,6 +105,33 @@ public class UserService {
         User user = getUser(userIdx);
 
         user.accountActive();
+    }
+
+    @Transactional
+    public User updateUserInfo(User user, UpdateUserInfoDto updateUserInfoDto) {
+        if (!updateUserInfoDto.getPhone().isBlank())
+            user.setPhone(updateUserInfoDto.getPhone());
+
+        if (!updateUserInfoDto.getEmail().isBlank()) {
+            if (user.getEmail().equals(updateUserInfoDto.getEmail()))
+                throw new IllegalStateException("이전 이메일과 동일한 이메일 입니다.");
+            user.setEmail(updateUserInfoDto.getEmail());
+        }
+
+        if (!updateUserInfoDto.getNickname().isBlank())
+            user.setNickname(updateUserInfoDto.getNickname());
+
+        for (StudentId studentId : user.getStudentsId()) {
+            switch(studentId.getGrade()) {
+                case FIRST -> studentId.setStudentId(updateUserInfoDto.getFirstGradeStudentId());
+                case SECOND -> studentId.setStudentId(updateUserInfoDto.getSecondGradeStudentId());
+                case THIRD -> studentId.setStudentId(updateUserInfoDto.getThirdGradeStudentId());
+            }
+        }
+
+        userRepository.save(user);
+
+        return user;
     }
 
 }

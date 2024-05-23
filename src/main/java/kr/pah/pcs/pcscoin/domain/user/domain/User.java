@@ -89,4 +89,24 @@ public class User {
     public void initStudentsId() {
         this.studentsId = new ArrayList<>();
     }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

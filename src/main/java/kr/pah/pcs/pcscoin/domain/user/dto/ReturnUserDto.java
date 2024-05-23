@@ -34,9 +34,12 @@ public class ReturnUserDto {
         this.email = user.getEmail();
         this.phone = user.getPhone();
         this.userType = user.getUserType();
-        if(user.getStudentsId() != null)
+        if(!user.getStudentsId().isEmpty())
             user.getStudentsId().forEach(student -> this.studentId.add(new ReturnStudentIdDto(student)));
-        if(user.getWallets() != null)
-            this.wallet = new ReturnWalletDto(user.getWallets().stream().filter(wallet -> !wallet.isDelete()).findFirst().orElseThrow());
+        if(!user.getWallets().isEmpty())
+            this.wallet = new ReturnWalletDto(user.getWallets().stream()
+                    .filter(wallet -> !wallet.isDelete())
+                    .findFirst()
+                    .orElseThrow());
     }
 }
