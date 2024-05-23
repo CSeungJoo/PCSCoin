@@ -54,7 +54,19 @@ public class UserController {
         }catch (IllegalStateException e) {
             return ResponseEntity.ok(new Result<>(e.getMessage(), true));
         }catch (Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
+        }
+    }
+
+    @GetMapping("/user/get")
+    public ResponseEntity<?> getLoginUser() {
+        try {
+            User user = SecurityUtils.getLoginUser();
+
+            return ResponseEntity.ok(new Result<>(new ReturnUserDto(user)));
+        }catch (IllegalStateException e) {
+            return ResponseEntity.ok(new Result<>(e.getMessage(), true));
+        }catch (Exception e) {
             return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
         }
     }
