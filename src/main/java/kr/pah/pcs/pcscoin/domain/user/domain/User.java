@@ -7,6 +7,7 @@ import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
 import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import lombok.*;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -63,7 +64,7 @@ public class User {
     private List<Wallet> wallets;
 
     @PrePersist
-    public void init() throws Exception {
+    public void init() throws NoSuchAlgorithmException {
         idx = UUID.randomUUID();
         isDelete = false;
         isActive = false;
@@ -72,6 +73,15 @@ public class User {
         if (role == null)
             role = Role.USER;
         token = SecurityUtils.hashing(Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes()));
+    }
+
+    @PreUpdate
+    public void update() throws NoSuchAlgorithmException {
+        token = SecurityUtils.hashing(Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes()));
+    }
+
+    public void deleteUser() {
+        isDelete = true;
     }
 
     public void accountActive() {

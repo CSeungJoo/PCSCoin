@@ -42,21 +42,22 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.getUserByEmail(email).orElseThrow(
+        return userRepository.getUserByEmailAndIsDeleteFalse(email).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 유저입니다.")
         );
     }
 
     @Transactional
     public void removeUser(User user) {
-        if (user != null)
-            userRepository.delete(user);
+        user.deleteUser();
+
+        userRepository.save(user);
     }
 
     public boolean alreadyExistsEmail(String email) {
         try {
             User user = getUserByEmail(email);
-            return true;
+            return !user.isDelete();
         }catch (IllegalStateException e) {
             return false;
         }

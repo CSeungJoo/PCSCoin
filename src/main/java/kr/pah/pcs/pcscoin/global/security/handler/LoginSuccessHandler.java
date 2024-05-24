@@ -20,6 +20,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
         log.info("login success userIdx : "+ principal.getUser().getIdx());
 
-        response.addCookie(new Cookie("token", principal.getUser().getToken()));
+        response.setHeader("token", principal.getUser().getToken());
     }
 }

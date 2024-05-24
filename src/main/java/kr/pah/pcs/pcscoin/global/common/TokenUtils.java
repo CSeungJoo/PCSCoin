@@ -28,7 +28,8 @@ public class TokenUtils {
     public boolean validateToken(String token) {
         try {
 
-            return !userService.getUserByToken(token).isDelete();
+            User user = userService.getUserByToken(token);
+            return !user.isDelete() && user.isActive();
         }catch (IllegalStateException e) {
             return false;
         }

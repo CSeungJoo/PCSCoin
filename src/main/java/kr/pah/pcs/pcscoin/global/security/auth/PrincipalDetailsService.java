@@ -16,8 +16,8 @@ public class PrincipalDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.getUserByEmail(email).orElseThrow(
-                () -> new IllegalStateException("존재하지 않은 유저이름입니다.")
+        User user = userRepository.getUserByEmailAndIsDeleteFalse(email).orElseThrow(
+                () -> new IllegalStateException("존재하지 않은 이메일입니다.")
         );
 
         return new PrincipalDetails(user);
