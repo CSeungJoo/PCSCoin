@@ -25,18 +25,24 @@ public class TradeLog {
     @Enumerated(EnumType.STRING)
     private TradeType tradeType;
 
-    @Column
+    @Column(precision = 20, scale = 0)
     private BigDecimal price;
+
+    @Column
+    private BigDecimal afterSendWalletMoney;
+
+    @Column
+    private BigDecimal afterReceiveWalletMoney;
 
     @Column
     private boolean isDelete;
 
     @OneToOne
     @JoinColumn(name = "buy_wallet_id")
-    private Wallet buyWallet;
+    private Wallet sendWallet;
 
     @OneToOne
     @JoinColumn(name = "sell_wallet_id")
-    private Wallet sellWallet;
+    private Wallet receiveWallet;
 
 }
