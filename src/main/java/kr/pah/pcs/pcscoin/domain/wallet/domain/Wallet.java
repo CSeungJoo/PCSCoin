@@ -39,6 +39,10 @@ public class Wallet {
         this.name = name;
     }
 
+    public void setMoney(BigDecimal money) {
+        this.money = money;
+    }
+
     public void deleteWallet() {
         isDelete = true;
     }

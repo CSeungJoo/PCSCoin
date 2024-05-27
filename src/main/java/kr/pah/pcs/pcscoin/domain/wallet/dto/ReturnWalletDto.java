@@ -14,12 +14,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class ReturnWalletDto {
-    private UUID idx;
+    private UUID walletIdx;
     private String name;
     private BigDecimal money;
 
     public ReturnWalletDto(Wallet wallet) {
-        this.idx = wallet.getIdx();
+        this.walletIdx = wallet.getIdx();
         this.name = wallet.getName();
         this.money = wallet.getMoney();
     }

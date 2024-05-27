@@ -47,6 +47,12 @@ public class UserService {
         );
     }
 
+    public User getUserByPhone(String phone) {
+        return userRepository.getUserByPhoneAndIsDeleteFalse(phone).orElseThrow(
+                () -> new IllegalStateException("존재하지 않은 유저입니다.")
+        );
+    }
+
     @Transactional
     public void removeUser(User user) {
         user.deleteUser();
@@ -134,5 +140,6 @@ public class UserService {
 
         return user;
     }
+
 
 }

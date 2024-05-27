@@ -1,12 +1,14 @@
-package kr.pah.pcs.pcscoin.domain.tradeLog.domain;
+package kr.pah.pcs.pcscoin.domain.trade.domain;
 
 import jakarta.persistence.*;
 import kr.pah.pcs.pcscoin.domain.model.TradeType;
 import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,32 +16,30 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class TradeLog {
+public class Trade {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idx;
+    private Long tradeIdx;
 
     @Column
-    private LocalDateTime tradeDate;
+    private LocalDateTime expiredTime;
 
     @Column
-    @Enumerated(EnumType.STRING)
-    private TradeType tradeType;
+    private String tradeName;
 
-    @Column(precision = 20, scale = 0)
+    @Column
+    private String tradeId;
+
+    @Column
     private BigDecimal price;
 
     @Column
-    private BigDecimal afterSendWalletMoney;
-
-    @Column
-    private BigDecimal afterReceiveWalletMoney;
+    private TradeType tradeType;
 
     @ManyToOne
     @JoinColumn(name = "send_wallet_idx")
     private Wallet sendWallet;
 
     @ManyToOne
-    @JoinColumn(name = "receive_wallet_idx")
+    @JoinColumn
     private Wallet receiveWallet;
-
 }

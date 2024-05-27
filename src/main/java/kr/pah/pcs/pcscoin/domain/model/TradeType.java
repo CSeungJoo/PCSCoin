@@ -4,5 +4,6 @@ public enum TradeType {
     TRANSFER,
     REFUND,
     DEPOSIT,
-    WITHDRAW
+    WITHDRAW,
+    PAYMENT
 }

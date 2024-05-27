@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Data
@@ -18,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class ReturnUserDto {
-    private UUID idx;
+    private UUID userIdx;
     private String name;
     private String nickname;
     private String email;
@@ -28,7 +27,7 @@ public class ReturnUserDto {
     private ReturnWalletDto wallet;
 
     public ReturnUserDto(User user) {
-        this.idx = user.getIdx();
+        this.userIdx = user.getIdx();
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.email = user.getEmail();
