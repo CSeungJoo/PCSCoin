@@ -35,6 +35,9 @@ public class Trade {
     @Column
     private TradeType tradeType;
 
+    @Column
+    private String clientKey;
+
     @ManyToOne
     @JoinColumn(name = "send_wallet_idx")
     private Wallet sendWallet;

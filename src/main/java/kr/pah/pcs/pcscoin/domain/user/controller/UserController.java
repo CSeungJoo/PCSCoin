@@ -89,4 +89,18 @@ public class UserController {
             return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다."));
         }
     }
+
+    @PutMapping("/user/seller")
+    public ResponseEntity<?> changeUserTypeBySeller() {
+        try {
+            User user = SecurityUtils.getLoginUser();
+
+            User changedUser = userService.changeUserTypeBySeller(user);
+            return ResponseEntity.ok(new Result<>(new ReturnUserDto(changedUser)));
+        }catch (IllegalStateException e) {
+            return ResponseEntity.ok(new Result<>(e.getMessage(), true));
+        }catch (Exception e) {
+            return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
+        }
+    }
 }

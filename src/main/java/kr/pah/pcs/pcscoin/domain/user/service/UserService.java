@@ -1,7 +1,10 @@
 package kr.pah.pcs.pcscoin.domain.user.service;
 
 import jakarta.persistence.EntityManager;
+import kr.pah.pcs.pcscoin.domain.keys.domain.Keys;
+import kr.pah.pcs.pcscoin.domain.keys.service.KeysService;
 import kr.pah.pcs.pcscoin.domain.model.Grade;
+import kr.pah.pcs.pcscoin.domain.model.UserType;
 import kr.pah.pcs.pcscoin.domain.user.domain.StudentId;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.dto.CreateUserDto;
@@ -26,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentIdRepository studentIdRepository;
     private final MailService mailService;
+    private final KeysService keysService;
 
     @Value("${url}")
     private String url;
@@ -141,5 +145,13 @@ public class UserService {
         return user;
     }
 
+    @Transactional
+    public User changeUserTypeBySeller(User user) {
+        user.setUserType(UserType.SELLER);
+        Keys keys = keysService.createKeys(user);
+        user.setKeys(keys);
+
+        return userRepository.save(user);
+    }
 
 }

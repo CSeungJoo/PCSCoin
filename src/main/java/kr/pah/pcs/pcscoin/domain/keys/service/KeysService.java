@@ -19,6 +19,22 @@ public class KeysService {
         );
     }
 
+    public Keys getKeysByClientKey(String clientKey) {
+        return keysRepository.getByClientKey(clientKey).orElseThrow(
+                () -> new IllegalStateException("존재하지 않은 클라이언트 키 입니다.")
+        );
+    }
+
+    public boolean validClient(String clientKey) {
+        try {
+            Keys keys = getKeysByClientKey(clientKey);
+
+            return true;
+        }catch (IllegalStateException e) {
+            return false;
+        }
+    }
+
     @Transactional
     public Keys createKeys(User user) {
         Keys keys = Keys.builder()

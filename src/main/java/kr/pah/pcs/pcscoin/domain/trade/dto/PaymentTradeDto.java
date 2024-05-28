@@ -16,4 +16,5 @@ public class PaymentTradeDto {
     private BigDecimal price;
     private String tradeId;
     private UUID sellerIdx;
+    private String clientKey;
 }

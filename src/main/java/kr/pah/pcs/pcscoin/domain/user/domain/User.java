@@ -1,6 +1,7 @@
 package kr.pah.pcs.pcscoin.domain.user.domain;
 
 import jakarta.persistence.*;
+import kr.pah.pcs.pcscoin.domain.keys.domain.Keys;
 import kr.pah.pcs.pcscoin.domain.model.Role;
 import kr.pah.pcs.pcscoin.domain.model.UserType;
 import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
@@ -63,6 +64,9 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Wallet> wallets;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    private Keys keys;
+
     @PrePersist
     public void init() throws NoSuchAlgorithmException {
         idx = UUID.randomUUID();
@@ -78,6 +82,10 @@ public class User {
     @PreUpdate
     public void update() throws NoSuchAlgorithmException {
         token = SecurityUtils.hashing(Base64.getEncoder().encodeToString((idx.toString() + email + password).getBytes()));
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     public void deleteUser() {
@@ -118,5 +126,9 @@ public class User {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void setKeys(Keys keys) {
+        this.keys = keys;
     }
 }

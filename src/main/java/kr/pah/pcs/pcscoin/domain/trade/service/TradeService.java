@@ -1,5 +1,7 @@
 package kr.pah.pcs.pcscoin.domain.trade.service;
 
+import kr.pah.pcs.pcscoin.domain.keys.domain.Keys;
+import kr.pah.pcs.pcscoin.domain.keys.service.KeysService;
 import kr.pah.pcs.pcscoin.domain.model.TradeType;
 import kr.pah.pcs.pcscoin.domain.trade.domain.Trade;
 import kr.pah.pcs.pcscoin.domain.trade.dto.PaymentTradeDto;
@@ -10,7 +12,6 @@ import kr.pah.pcs.pcscoin.domain.tradeLog.service.TradeLogService;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.service.UserService;
 import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
-import kr.pah.pcs.pcscoin.domain.wallet.repository.WalletRepository;
 import kr.pah.pcs.pcscoin.domain.wallet.service.WalletService;
 import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class TradeService {
     private final WalletService walletService;
     private final TradeRepository tradeRepository;
     private final TradeLogService tradeLogService;
+    private final KeysService keysService;
 
     public Trade getTradeByIdx(Long idx) {
         return tradeRepository.findById(idx).orElseThrow(
@@ -39,7 +41,7 @@ public class TradeService {
     }
 
     @Transactional
-    public Trade transferMoney(TransferTradeDto transferTradeDto) {
+    public Trade transferMoneyCheck(TransferTradeDto transferTradeDto) {
 
         User sendUser = SecurityUtils.getLoginUser();
         Wallet sendWallet = walletService.getWalletByUser(sendUser);
@@ -61,6 +63,10 @@ public class TradeService {
 
     @Transactional
     public Trade paymentMoney(PaymentTradeDto paymentTradeDto) {
+
+        if (!keysService.validClient(paymentTradeDto.getClientKey()))
+            throw new IllegalStateException("잘못된 클라이언트키 입니다.");
+
         User sendUser = SecurityUtils.getLoginUser();
         Wallet sendWallet = walletService.getWalletByUser(sendUser);
 
@@ -73,6 +79,7 @@ public class TradeService {
                 .tradeId(paymentTradeDto.getTradeId())
                 .price(paymentTradeDto.getPrice())
                 .sendWallet(sendWallet)
+                .clientKey(paymentTradeDto.getClientKey())
                 .receiveWallet(receviceWallet)
                 .build();
 
@@ -80,16 +87,24 @@ public class TradeService {
     }
 
     @Transactional
-    public void tradeConfirm(TradeConfirmDto tradeConfirmDto) {
+    public void tradeConfirm(TradeConfirmDto tradeConfirmDto, String securityKey) {
         Trade trade = getTradeByIdx(tradeConfirmDto.getTradeIdx());
 
-        if (!trade.getPrice().equals(tradeConfirmDto.getPrice()) || !trade.getTradeId().equals(tradeConfirmDto.getTradeId()))
+        if (!trade.getPrice().equals(tradeConfirmDto.getPrice()) || !trade.getTradeId().equals(tradeConfirmDto.getTradeId())) {
             throw new IllegalStateException("결재정보가 달라졌습니다.");
+        }
 
-        Wallet sendWallet = trade.getSendWallet();
         Wallet receiveWallet = trade.getReceiveWallet();
+        Wallet sendWallet = trade.getSendWallet();
 
-        if (transferMoney(sendWallet, receiveWallet, tradeConfirmDto.getPrice())) {
+        if (trade.getTradeType().equals(TradeType.PAYMENT)) {
+            Keys keys = sendWallet.getUser().getKeys();
+            if(!securityKey.equals(keys.getSecurityKey()))
+                throw new IllegalStateException("잘못된 시크릿키 입니다.");
+        }
+
+
+        if (transferMoneyCheck(sendWallet, tradeConfirmDto.getPrice())) {
             sendWallet.setMoney(sendWallet.getMoney().subtract(tradeConfirmDto.getPrice()));
             receiveWallet.setMoney(sendWallet.getMoney().add(tradeConfirmDto.getPrice()));
         }
@@ -98,7 +113,7 @@ public class TradeService {
         deleteTrade(trade);
     }
 
-    public boolean transferMoney(Wallet sendWallet, Wallet receiveWallet, BigDecimal price) {
+    public boolean transferMoneyCheck(Wallet sendWallet, BigDecimal price) {
         switch(sendWallet.getMoney().subtract(price).compareTo(BigDecimal.ZERO)) {
             case -1 -> throw new IllegalStateException("계좌에 잔액의 부족합니다");
             case 0, 1 -> {
