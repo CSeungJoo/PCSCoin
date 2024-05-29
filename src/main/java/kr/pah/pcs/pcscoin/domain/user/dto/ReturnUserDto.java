@@ -35,7 +35,7 @@ public class ReturnUserDto {
         this.userType = user.getUserType();
         if(!user.getStudentsId().isEmpty())
             user.getStudentsId().forEach(student -> this.studentId.add(new ReturnStudentIdDto(student)));
-        if(!user.getWallets().isEmpty())
+        if(user.getWallets() != null && !user.getWallets().isEmpty())
             this.wallet = new ReturnWalletDto(user.getWallets().stream()
                     .filter(wallet -> !wallet.isDelete())
                     .findFirst()

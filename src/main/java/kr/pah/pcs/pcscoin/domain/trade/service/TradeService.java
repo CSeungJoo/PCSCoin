@@ -8,6 +8,7 @@ import kr.pah.pcs.pcscoin.domain.trade.dto.PaymentTradeDto;
 import kr.pah.pcs.pcscoin.domain.trade.dto.TradeConfirmDto;
 import kr.pah.pcs.pcscoin.domain.trade.dto.TransferTradeDto;
 import kr.pah.pcs.pcscoin.domain.trade.repository.TradeRepository;
+import kr.pah.pcs.pcscoin.domain.tradeLog.domain.TradeLog;
 import kr.pah.pcs.pcscoin.domain.tradeLog.service.TradeLogService;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
 import kr.pah.pcs.pcscoin.domain.user.service.UserService;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +36,14 @@ public class TradeService {
     private final TradeLogService tradeLogService;
     private final KeysService keysService;
 
-    public Trade getTradeByIdx(Long idx) {
+    public Trade getTradeByIdx(UUID idx) {
         return tradeRepository.findById(idx).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 거래입니다.")
         );
     }
 
     @Transactional
-    public Trade transferMoneyCheck(TransferTradeDto transferTradeDto) {
+    public Trade transferMoney(TransferTradeDto transferTradeDto) {
 
         User sendUser = SecurityUtils.getLoginUser();
         Wallet sendWallet = walletService.getWalletByUser(sendUser);
@@ -62,16 +64,17 @@ public class TradeService {
     }
 
     @Transactional
-    public Trade paymentMoney(PaymentTradeDto paymentTradeDto) {
+    public Trade paymentMoney(PaymentTradeDto paymentTradeDto, String clientKey) {
 
-        if (!keysService.validClient(paymentTradeDto.getClientKey()))
+        User receviceUser = keysService.getKeysByClientKey(clientKey).getUser();
+        Wallet receviceWallet = walletService.getWalletByUser(receviceUser);
+
+        if (!keysService.validClient(clientKey) || !receviceUser.getKeys().getClientKey().equals(clientKey))
             throw new IllegalStateException("잘못된 클라이언트키 입니다.");
 
         User sendUser = SecurityUtils.getLoginUser();
         Wallet sendWallet = walletService.getWalletByUser(sendUser);
 
-        User receviceUser = userService.getUser(paymentTradeDto.getSellerIdx());
-        Wallet receviceWallet = walletService.getWalletByUser(receviceUser);
 
         Trade trade = Trade.builder()
                 .expiredTime(LocalDateTime.now().plusMinutes(10))
@@ -79,7 +82,7 @@ public class TradeService {
                 .tradeId(paymentTradeDto.getTradeId())
                 .price(paymentTradeDto.getPrice())
                 .sendWallet(sendWallet)
-                .clientKey(paymentTradeDto.getClientKey())
+                .clientKey(clientKey)
                 .receiveWallet(receviceWallet)
                 .build();
 
@@ -87,7 +90,7 @@ public class TradeService {
     }
 
     @Transactional
-    public void tradeConfirm(TradeConfirmDto tradeConfirmDto, String securityKey) {
+    public TradeLog tradeConfirm(TradeConfirmDto tradeConfirmDto, String secretKey) {
         Trade trade = getTradeByIdx(tradeConfirmDto.getTradeIdx());
 
         if (!trade.getPrice().equals(tradeConfirmDto.getPrice()) || !trade.getTradeId().equals(tradeConfirmDto.getTradeId())) {
@@ -98,8 +101,8 @@ public class TradeService {
         Wallet sendWallet = trade.getSendWallet();
 
         if (trade.getTradeType().equals(TradeType.PAYMENT)) {
-            Keys keys = sendWallet.getUser().getKeys();
-            if(!securityKey.equals(keys.getSecurityKey()))
+            Keys keys = receiveWallet.getUser().getKeys();
+            if(!secretKey.equals(keys.getSecretKey()))
                 throw new IllegalStateException("잘못된 시크릿키 입니다.");
         }
 
@@ -109,8 +112,10 @@ public class TradeService {
             receiveWallet.setMoney(sendWallet.getMoney().add(tradeConfirmDto.getPrice()));
         }
 
-        tradeLogService.createTradeLog(trade);
+        TradeLog tradeLog = tradeLogService.createTradeLog(trade);
         deleteTrade(trade);
+
+        return tradeLog;
     }
 
     public boolean transferMoneyCheck(Wallet sendWallet, BigDecimal price) {

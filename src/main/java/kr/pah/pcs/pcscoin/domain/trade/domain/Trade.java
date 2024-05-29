@@ -10,15 +10,17 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"trade_id", "receive_wallet_idx"})})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class Trade {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long tradeIdx;
+    private UUID Idx;
 
     @Column
     private LocalDateTime expiredTime;
@@ -43,6 +45,6 @@ public class Trade {
     private Wallet sendWallet;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "receive_wallet_idx")
     private Wallet receiveWallet;
 }

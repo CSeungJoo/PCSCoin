@@ -7,13 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class KeysService {
     private final KeysRepository keysRepository;
 
-    public Keys getKeysByIdx(Long keysIdx) {
+    public Keys getKeysByIdx(UUID keysIdx) {
         return keysRepository.findById(keysIdx).orElseThrow(
                 () -> new IllegalStateException("키가 존재하지 않습니다.")
         );

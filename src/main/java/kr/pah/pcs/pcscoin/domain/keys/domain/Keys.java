@@ -18,14 +18,14 @@ import java.util.UUID;
 @Builder
 @Getter
 public class Keys {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idx;
+    @Id
+    private UUID idx;
 
     @Column
     private String clientKey;
 
     @Column
-    private String securityKey;
+    private String secretKey;
 
     @OneToOne
     @JoinColumn(name = "user_idx")
@@ -36,8 +36,9 @@ public class Keys {
 
     @PrePersist
     private void init() throws NoSuchAlgorithmException {
+        idx = UUID.randomUUID();
         clientKey = SecurityUtils.hashing(idx.toString() + LocalDateTime.now());
-        securityKey = SecurityUtils.hashing(idx.toString() + LocalDateTime.now() + user.getIdx().toString());
+        secretKey = SecurityUtils.hashing(idx.toString() + LocalDateTime.now() + user.getIdx().toString());
         createDate = LocalDateTime.now();
     }
 }

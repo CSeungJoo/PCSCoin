@@ -31,6 +31,7 @@ public class UserController {
         }catch (IllegalStateException e) {
             return ResponseEntity.ok(new Result<>(e.getMessage(), true));
         }catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
         }
     }
@@ -100,6 +101,7 @@ public class UserController {
         }catch (IllegalStateException e) {
             return ResponseEntity.ok(new Result<>(e.getMessage(), true));
         }catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
         }
     }
