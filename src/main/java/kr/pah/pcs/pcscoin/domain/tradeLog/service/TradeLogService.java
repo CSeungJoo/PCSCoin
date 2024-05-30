@@ -24,8 +24,8 @@ public class TradeLogService {
         return tradeLogRepository.getTradeLogsWallet(wallet, pageable);
     }
 
-    public List<TradeLog> getTradeLogByWalletAndTradeDate(Wallet wallet, LocalDateTime tradeDate) {
-        return tradeLogRepository.getTradeLogsByWalletAndTradeDate(wallet, tradeDate);
+    public Page<TradeLog> getTradeLogByWalletAndTradeDate(Wallet wallet, LocalDateTime tradeDate, Pageable pageable) {
+        return tradeLogRepository.getTradeLogsByWalletAndTradeDate(wallet, tradeDate, pageable);
     }
 
     @Transactional
@@ -42,5 +42,6 @@ public class TradeLogService {
 
         return tradeLogRepository.save(tradeLog);
     }
+
 
 }
