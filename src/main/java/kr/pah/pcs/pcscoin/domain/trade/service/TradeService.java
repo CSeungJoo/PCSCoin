@@ -93,7 +93,7 @@ public class TradeService {
     public TradeLog tradeConfirm(TradeConfirmDto tradeConfirmDto, String secretKey) {
         Trade trade = getTradeByIdx(tradeConfirmDto.getTradeIdx());
 
-        if (!trade.getPrice().equals(tradeConfirmDto.getPrice()) || !trade.getTradeId().equals(tradeConfirmDto.getTradeId())) {
+        if (trade.getPrice().compareTo(tradeConfirmDto.getPrice()) != 0 || !trade.getTradeId().equals(tradeConfirmDto.getTradeId())) {
             throw new IllegalStateException("결재정보가 달라졌습니다.");
         }
 
@@ -102,7 +102,7 @@ public class TradeService {
 
         if (trade.getTradeType().equals(TradeType.PAYMENT)) {
             Keys keys = receiveWallet.getUser().getKeys();
-            if(!secretKey.equals(keys.getSecretKey()))
+            if(secretKey == null ||!secretKey.equals(keys.getSecretKey()))
                 throw new IllegalStateException("잘못된 시크릿키 입니다.");
         }
 

@@ -19,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 public class Trade {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Idx;
 
     @Column
