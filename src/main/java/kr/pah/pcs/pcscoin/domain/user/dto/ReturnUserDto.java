@@ -2,6 +2,7 @@ package kr.pah.pcs.pcscoin.domain.user.dto;
 
 import kr.pah.pcs.pcscoin.domain.model.UserType;
 import kr.pah.pcs.pcscoin.domain.user.domain.User;
+import kr.pah.pcs.pcscoin.domain.wallet.domain.Wallet;
 import kr.pah.pcs.pcscoin.domain.wallet.dto.ReturnWalletDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,10 +36,11 @@ public class ReturnUserDto {
         this.userType = user.getUserType();
         if(!user.getStudentsId().isEmpty())
             user.getStudentsId().forEach(student -> this.studentId.add(new ReturnStudentIdDto(student)));
-        if(user.getWallets() != null && !user.getWallets().isEmpty())
-            this.wallet = new ReturnWalletDto(user.getWallets().stream()
-                    .filter(wallet -> !wallet.isDelete())
+        if(user.getWallets() != null && !user.getWallets().isEmpty()) {
+            Wallet returnWallet = user.getWallets().stream().filter(wallet -> !wallet.isDelete())
                     .findFirst()
-                    .orElseThrow());
+                    .orElse(null);
+            this.wallet = returnWallet != null ? new ReturnWalletDto(returnWallet) : null;
+        }
     }
 }
