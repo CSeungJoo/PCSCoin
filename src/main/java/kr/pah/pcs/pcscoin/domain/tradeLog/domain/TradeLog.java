@@ -29,6 +29,9 @@ public class TradeLog {
     private BigDecimal price;
 
     @Column
+    private String tradeId;
+
+    @Column
     private BigDecimal afterSendWalletMoney;
 
     @Column

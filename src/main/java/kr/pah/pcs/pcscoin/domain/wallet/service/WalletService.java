@@ -19,6 +19,11 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
+
+    /**
+     * @return Wallet
+     * 로그인한 유저를 기반으로 지갑 생성
+     */
     @Transactional
     public Wallet createWallet() {
 
@@ -39,12 +44,22 @@ public class WalletService {
         return saveWallet;
     }
 
+    /**
+     * @param wallet
+     * @param newName
+     * @return Wallet
+     * 지갑 이름 변경
+     */
     @Transactional
     public Wallet modifiedWalletName(Wallet wallet, String newName) {
         wallet.setName(newName);
         return walletRepository.save(wallet);
     }
 
+    /**
+     * @param user
+     * 유저가 가지고 있는 지갑 삭제처리
+     */
     @Transactional
     public void deleteWalletByUser(User user) {
         Wallet wallet = getWalletByUser(user);
@@ -56,6 +71,11 @@ public class WalletService {
         userRepository.save(user);
     }
 
+    /**
+     * @param user
+     * @return Wallet
+     * 유저를 기반으로 지갑중 삭제되지 않은것을 찾아 조회
+     */
     public Wallet getWalletByUser(User user) {
         List<Wallet> wallets = walletRepository.getWalletsByUser(user);
         if(wallets == null)
@@ -69,6 +89,11 @@ public class WalletService {
         throw new IllegalStateException("사용자 소유의 지갑이 없습니다.");
     }
 
+    /**
+     * @param wallet
+     * @return true or false
+     * 사용가능한 지갑인지 확인
+     */
     public boolean isAvailableWallet(Wallet wallet) {
         if (wallet == null || wallet.isDelete())
             return false;

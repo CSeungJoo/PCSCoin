@@ -34,29 +34,50 @@ public class UserService {
     @Value("${url}")
     private String url;
 
+    /**
+     * @param userId
+     * @return User
+     */
     public User getUser(UUID userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 유저입니다.")
         );
     }
+
+    /**
+     * @param token
+     * @return User
+     */
     public User getUserByToken(String token) {
         return userRepository.getUserByToken(token).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 유저입니다.")
         );
     }
 
+    /**
+     * @param email
+     * @return User
+     */
     public User getUserByEmail(String email) {
         return userRepository.getUserByEmailAndIsDeleteFalse(email).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 유저입니다.")
         );
     }
 
+    /**
+     * @param phone
+     * @return User
+     */
     public User getUserByPhone(String phone) {
         return userRepository.getUserByPhoneAndIsDeleteFalse(phone).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 유저입니다.")
         );
     }
 
+    /**
+     * @param user
+     * 유져 삭제 처리 후 저장
+     */
     @Transactional
     public void removeUser(User user) {
         user.deleteUser();
@@ -64,6 +85,11 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * @param email
+     * @return true or false
+     * 이미 존재하는 이메일인지 검증
+     */
     public boolean alreadyExistsEmail(String email) {
         try {
             User user = getUserByEmail(email);
@@ -75,6 +101,11 @@ public class UserService {
 
     }
 
+    /**
+     * @param createUserDto
+     * @return User
+     * dto를 기반으로 user 생성후 본인확인 이메일 전송후 user return
+     */
     @Transactional
     public User createUser(CreateUserDto createUserDto) {
 
@@ -109,6 +140,9 @@ public class UserService {
         return user;
     }
 
+    /**
+     * @param encodeIdx
+     */
     @Transactional
     public void activeUser(String encodeIdx) {
         byte[] decode = Base64.getDecoder().decode(encodeIdx);
@@ -118,6 +152,13 @@ public class UserService {
         user.accountActive();
     }
 
+    /**
+     *
+     * @param user
+     * @param updateUserInfoDto
+     * @return User
+     * 유저 정보 업데이트
+     */
     @Transactional
     public User updateUserInfo(User user, UpdateUserInfoDto updateUserInfoDto) {
         if (!updateUserInfoDto.getPhone().isBlank())
@@ -145,6 +186,11 @@ public class UserService {
         return user;
     }
 
+    /**
+     * @param user
+     * @return User
+     * userType을 seller 로 변경 및 Keys 발급
+     */
     @Transactional
     public User changeUserTypeBySeller(User user) {
         user.setUserType(UserType.SELLER);

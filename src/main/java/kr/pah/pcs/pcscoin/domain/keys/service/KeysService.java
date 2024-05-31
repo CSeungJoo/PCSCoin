@@ -15,18 +15,34 @@ import java.util.UUID;
 public class KeysService {
     private final KeysRepository keysRepository;
 
+
+    /**
+     *
+     * @param keysIdx
+     * @return Keys
+     */
     public Keys getKeysByIdx(UUID keysIdx) {
         return keysRepository.findById(keysIdx).orElseThrow(
                 () -> new IllegalStateException("키가 존재하지 않습니다.")
         );
     }
 
+    /**
+     *
+     * @param clientKey
+     * @return Keys
+     */
     public Keys getKeysByClientKey(String clientKey) {
         return keysRepository.getByClientKey(clientKey).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 클라이언트 키 입니다.")
         );
     }
 
+    /**
+     *
+     * @param clientKey
+     * @return true or false
+     */
     public boolean validClient(String clientKey) {
         try {
             Keys keys = getKeysByClientKey(clientKey);
@@ -37,6 +53,10 @@ public class KeysService {
         }
     }
 
+    /**
+     * @param user
+     * @return Keys
+     */
     @Transactional
     public Keys createKeys(User user) {
         Keys keys = Keys.builder()

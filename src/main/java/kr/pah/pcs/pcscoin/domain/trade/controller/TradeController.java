@@ -14,10 +14,7 @@ import kr.pah.pcs.pcscoin.global.common.Result;
 import kr.pah.pcs.pcscoin.global.common.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -69,4 +66,18 @@ public class TradeController {
             return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
         }
     }
+
+    @PostMapping("/refund/{idx}")
+    public ResponseEntity<?> refundMoney(@PathVariable("idx") Long tradeLogIdx) {
+        try {
+            Trade trade = tradeService.refundMoney(tradeLogIdx);
+
+            return ResponseEntity.ok(new Result<>(new ReturnTradeDto(trade)));
+        }catch (IllegalStateException e) {
+            return ResponseEntity.ok(new Result<>(e.getMessage(), true));
+        }catch (Exception e) {
+            return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
+        }
+    }
+
 }

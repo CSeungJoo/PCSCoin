@@ -17,6 +17,7 @@ import java.util.UUID;
 public class ReturnTradeDto {
     private UUID tradeIdx;
     private BigDecimal price;
+    private String tradeId;
     private TradeType tradeType;
     private String sendWalletName;
     private String receiveWalletName;
@@ -24,6 +25,7 @@ public class ReturnTradeDto {
     public ReturnTradeDto(Trade trade) {
         this.tradeIdx = trade.getIdx();
         this.price = trade.getPrice();
+        this.tradeId = trade.getTradeId();
         this.tradeType = trade.getTradeType();
         this.sendWalletName = trade.getSendWallet().getName();
         this.receiveWalletName = trade.getReceiveWallet().getName();

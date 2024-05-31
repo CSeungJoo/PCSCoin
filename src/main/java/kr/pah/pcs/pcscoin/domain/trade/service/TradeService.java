@@ -36,12 +36,23 @@ public class TradeService {
     private final TradeLogService tradeLogService;
     private final KeysService keysService;
 
-    public Trade getTradeByIdx(UUID idx) {
-        return tradeRepository.findById(idx).orElseThrow(
+    /**
+     * @param tradeIdx
+     * @return Trade
+     * tradeIdx를 통한 Trade 조회
+     * @exception IllegalStateException "조회 값이 없을시"
+     */
+    public Trade getTradeByIdx(UUID tradeIdx) {
+        return tradeRepository.findById(tradeIdx).orElseThrow(
                 () -> new IllegalStateException("존재하지 않은 거래입니다.")
         );
     }
 
+    /**
+     * @param transferTradeDto
+     * @return Trade
+     * 로그인된 유저와 dto를 통해 받아온 핸드폰 번호로 유저를 조회하여 Trade 생성 후 저장 및 return
+     */
     @Transactional
     public Trade transferMoney(TransferTradeDto transferTradeDto) {
 
@@ -63,6 +74,13 @@ public class TradeService {
         return tradeRepository.save(trade);
     }
 
+    /**
+     * @param paymentTradeDto
+     * @param clientKey
+     * @return Trade
+     * 클라이언트 키가 올바른 키인지 검증후 Trade 생성후 저장 및 return
+     * @exception IllegalStateException "잘못된 클라이언트 키인 경우"
+     */
     @Transactional
     public Trade paymentMoney(PaymentTradeDto paymentTradeDto, String clientKey) {
 
@@ -74,7 +92,6 @@ public class TradeService {
 
         User sendUser = SecurityUtils.getLoginUser();
         Wallet sendWallet = walletService.getWalletByUser(sendUser);
-
 
         Trade trade = Trade.builder()
                 .expiredTime(LocalDateTime.now().plusMinutes(10))
@@ -89,6 +106,12 @@ public class TradeService {
         return tradeRepository.save(trade);
     }
 
+    /**
+     * @param tradeConfirmDto
+     * @param secretKey
+     * @return TradeLog
+     * 거래 정보가 동일한지 검증후 거래타입이 결재 라면 secretKey검증 후 잔액 조회후 결재 진행 및 거래 완료처리
+     */
     @Transactional
     public TradeLog tradeConfirm(TradeConfirmDto tradeConfirmDto, String secretKey) {
         Trade trade = getTradeByIdx(tradeConfirmDto.getTradeIdx());
@@ -118,6 +141,12 @@ public class TradeService {
         return tradeLog;
     }
 
+    /**
+     * @param sendWallet
+     * @param price
+     * @return true or false
+     * 돈을 보내려는 지갑의 잔액이 부족한지 확인
+     */
     public boolean transferMoneyCheck(Wallet sendWallet, BigDecimal price) {
         switch(sendWallet.getMoney().subtract(price).compareTo(BigDecimal.ZERO)) {
             case -1 -> throw new IllegalStateException("계좌에 잔액의 부족합니다");
@@ -128,9 +157,34 @@ public class TradeService {
         return false;
     }
 
+    /**
+     * @param trade
+     * 거래 삭제
+     */
     @Transactional
     public void deleteTrade(Trade trade) {
         tradeRepository.delete(trade);
     }
 
+    /**
+     * @param tradeLogIdx
+     * @return Trade
+     * tradeLogIdx로 TradeLog를 불러와 환불처리
+     */
+    @Transactional
+    public Trade refundMoney(Long tradeLogIdx) {
+        TradeLog tradeLog = tradeLogService.getTradeLogByIdx(tradeLogIdx);
+
+        Trade trade = Trade.builder()
+                .sendWallet(tradeLog.getReceiveWallet())
+                .receiveWallet(tradeLog.getSendWallet())
+                .tradeName("refund")
+                .price(tradeLog.getPrice())
+                .tradeId(tradeLog.getTradeId() + "-refund")
+                .expiredTime(LocalDateTime.now().plusMinutes(5))
+                .tradeType(TradeType.REFUND)
+                .build();
+
+        return tradeRepository.save(trade);
+    }
 }
