@@ -196,16 +196,14 @@ public class TradeService {
         return tradeRepository.save(trade);
     }
 
+    /**
+     * @param tradeIdx
+     * 거래 삭제
+     */
     public void cancelTrade(UUID tradeIdx) {
         User user = SecurityUtils.getLoginUser();
 
         Trade trade = getTradeByIdx(tradeIdx);
-
-        UUID user1 = trade.getReceiveWallet().getUser().getIdx();
-        UUID user2 = trade.getSendWallet().getUser().getIdx();
-
-        if (user.getIdx().equals(trade.getSendWallet().getUser().getIdx()))
-            log.info("true");
 
         if (!user.getIdx().equals(trade.getReceiveWallet().getUser().getIdx()) && !user.getIdx().equals(trade.getSendWallet().getUser().getIdx()))
             throw new IllegalStateException("사용자가 관련된 거래가 아닙니다.");
