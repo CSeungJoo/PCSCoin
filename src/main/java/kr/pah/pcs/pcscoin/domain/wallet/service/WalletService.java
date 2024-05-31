@@ -100,4 +100,8 @@ public class WalletService {
 
         return true;
     }
+
+    public Wallet save(Wallet wallet) {
+        return walletRepository.save(wallet);
+    }
 }

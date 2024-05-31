@@ -38,10 +38,10 @@ public class TradeLogController {
             LocalDateTime localDateTime = null;
 
             switch(month) {
-                case 3 -> localDateTime = LocalDateTime.now().plusMonths(3);
-                case 6 -> localDateTime = LocalDateTime.now().plusMonths(6);
-                case 9 -> localDateTime = LocalDateTime.now().plusMonths(9);
-                case 12 -> localDateTime = LocalDateTime.now().plusMonths(12);
+                case 3 -> localDateTime = LocalDateTime.now().minusMonths(3);
+                case 6 -> localDateTime = LocalDateTime.now().minusMonths(6);
+                case 9 -> localDateTime = LocalDateTime.now().minusMonths(9);
+                case 12 -> localDateTime = LocalDateTime.now().minusMonths(12);
                 case 0 -> localDateTime = LocalDateTime.MIN;
             }
 

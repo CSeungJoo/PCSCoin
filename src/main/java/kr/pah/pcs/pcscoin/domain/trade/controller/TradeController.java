@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,9 +69,9 @@ public class TradeController {
     }
 
     @PostMapping("/refund/{idx}")
-    public ResponseEntity<?> refundMoney(@PathVariable("idx") Long tradeLogIdx) {
+    public ResponseEntity<?> refundMoney(@PathVariable("idx") Long tradeLogIdx, HttpServletRequest request) {
         try {
-            Trade trade = tradeService.refundMoney(tradeLogIdx);
+            Trade trade = tradeService.refundMoney(tradeLogIdx, request.getHeader("secretKey"));
 
             return ResponseEntity.ok(new Result<>(new ReturnTradeDto(trade)));
         }catch (IllegalStateException e) {
@@ -79,5 +80,19 @@ public class TradeController {
             return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다.", true));
         }
     }
+
+    @DeleteMapping("/cancel/{idx}")
+    public ResponseEntity<?> cancelTrade(@PathVariable("idx") UUID tradeIdx) {
+        try {
+            tradeService.cancelTrade(tradeIdx);
+
+            return ResponseEntity.ok(new Result<>("정상적으로 처리되었습니다."));
+        }catch (IllegalStateException e) {
+            return ResponseEntity.ok(new Result<>(e.getMessage(), true));
+        }catch (Exception e) {
+            return ResponseEntity.ok(new Result<>("알수 없는 에러가 발생하였습니다."));
+        }
+    }
+
 
 }

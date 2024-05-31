@@ -14,6 +14,6 @@ public interface TradeLogRepository extends JpaRepository<TradeLog, Long> {
     @Query("select tl from TradeLog tl where tl.receiveWallet = ?1 or tl.sendWallet = ?1")
     Page<TradeLog> getTradeLogsWallet(Wallet wallet, Pageable pageable);
 
-    @Query("select tl from TradeLog tl where tl.receiveWallet = ?1 or tl.sendWallet = ?1 and tl.tradeDate > ?2")
+    @Query("select tl from TradeLog tl where (tl.receiveWallet = ?1 or tl.sendWallet = ?1) and tl.tradeDate > ?2 order by tl.tradeDate desc")
     Page<TradeLog> getTradeLogsByWalletAndTradeDate(Wallet wallet, LocalDateTime tradeDate, Pageable pageable);
 }

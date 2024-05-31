@@ -40,11 +40,11 @@ public class Trade {
     @Column
     private String clientKey;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "send_wallet_idx")
     private Wallet sendWallet;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receive_wallet_idx")
     private Wallet receiveWallet;
 }

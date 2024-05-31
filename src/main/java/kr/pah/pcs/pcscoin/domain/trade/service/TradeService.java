@@ -134,6 +134,8 @@ public class TradeService {
             sendWallet.setMoney(sendWallet.getMoney().subtract(tradeConfirmDto.getPrice()));
             receiveWallet.setMoney(sendWallet.getMoney().add(tradeConfirmDto.getPrice()));
         }
+        walletService.save(sendWallet);
+        walletService.save(receiveWallet);
 
         TradeLog tradeLog = tradeLogService.createTradeLog(trade);
         deleteTrade(trade);
@@ -172,8 +174,14 @@ public class TradeService {
      * tradeLogIdx로 TradeLog를 불러와 환불처리
      */
     @Transactional
-    public Trade refundMoney(Long tradeLogIdx) {
+    public Trade refundMoney(Long tradeLogIdx, String secretKey) {
         TradeLog tradeLog = tradeLogService.getTradeLogByIdx(tradeLogIdx);
+
+        if (!tradeLog.getTradeType().equals(TradeType.PAYMENT))
+            throw new IllegalStateException("환불은 결제유형:거래 만 가능합니다.");
+
+        if (!tradeLog.getReceiveWallet().getUser().getKeys().getSecretKey().equals(secretKey))
+            throw new IllegalStateException("잘못된 시크릿키 입니다.");
 
         Trade trade = Trade.builder()
                 .sendWallet(tradeLog.getReceiveWallet())
@@ -186,5 +194,21 @@ public class TradeService {
                 .build();
 
         return tradeRepository.save(trade);
+    }
+
+    public void cancelTrade(UUID tradeIdx) {
+        User user = SecurityUtils.getLoginUser();
+
+        Trade trade = getTradeByIdx(tradeIdx);
+
+        UUID user1 = trade.getReceiveWallet().getUser().getIdx();
+        UUID user2 = trade.getSendWallet().getUser().getIdx();
+
+        if (user.getIdx().equals(trade.getSendWallet().getUser().getIdx()))
+            log.info("true");
+
+        if (!user.getIdx().equals(trade.getReceiveWallet().getUser().getIdx()) && !user.getIdx().equals(trade.getSendWallet().getUser().getIdx()))
+            throw new IllegalStateException("사용자가 관련된 거래가 아닙니다.");
+        deleteTrade(trade);
     }
 }
