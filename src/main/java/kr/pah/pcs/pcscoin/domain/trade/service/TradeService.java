@@ -125,7 +125,13 @@ public class TradeService {
 
         if (trade.getTradeType().equals(TradeType.PAYMENT)) {
             Keys keys = receiveWallet.getUser().getKeys();
-            if(secretKey == null ||!secretKey.equals(keys.getSecretKey()))
+            if(secretKey == null || !secretKey.equals(keys.getSecretKey()) || !trade.getClientKey().equals(keys.getClientKey()))
+                throw new IllegalStateException("잘못된 시크릿키 입니다.");
+        }
+
+        else if (trade.getTradeType().equals(TradeType.REFUND)) {
+            Keys keys = sendWallet.getUser().getKeys();
+            if (secretKey == null || !secretKey.equals(keys.getSecretKey()) || !trade.getClientKey().equals(keys.getClientKey()))
                 throw new IllegalStateException("잘못된 시크릿키 입니다.");
         }
 
