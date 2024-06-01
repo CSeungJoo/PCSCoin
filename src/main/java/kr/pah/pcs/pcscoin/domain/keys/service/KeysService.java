@@ -38,6 +38,12 @@ public class KeysService {
         );
     }
 
+    public Keys getKeysByUser(User user) {
+        return keysRepository.getByUserIdx(user.getIdx()).orElseThrow(
+                () -> new IllegalStateException("키가 존재하지 않습니다.")
+        );
+    }
+
     /**
      *
      * @param clientKey

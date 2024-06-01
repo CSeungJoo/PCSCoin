@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface KeysRepository extends JpaRepository<Keys, UUID> {
      Optional<Keys> getByClientKey(String clientKey);
+     Optional<Keys> getByUserIdx(UUID userIdx);
 }
