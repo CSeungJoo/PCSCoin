@@ -193,6 +193,10 @@ public class UserService {
      */
     @Transactional
     public User changeUserTypeBySeller(User user) {
+
+        if (user.getUserType().equals(UserType.SELLER))
+            throw new IllegalStateException("이미 SELLER 입니다.");
+
         user.setUserType(UserType.SELLER);
         Keys keys = keysService.createKeys(user);
         user.setKeys(keys);
