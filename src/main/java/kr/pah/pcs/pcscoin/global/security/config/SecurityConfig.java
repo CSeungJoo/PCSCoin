@@ -1,9 +1,7 @@
 package kr.pah.pcs.pcscoin.global.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.pah.pcs.pcscoin.domain.user.repository.UserRepository;
 import kr.pah.pcs.pcscoin.domain.user.service.UserService;
-import kr.pah.pcs.pcscoin.global.common.TokenUtils;
 import kr.pah.pcs.pcscoin.global.security.auth.PrincipalDetailsService;
 import kr.pah.pcs.pcscoin.global.security.filter.JsonAuthenticationFilter;
 import kr.pah.pcs.pcscoin.global.security.filter.TokenAuthenticationFilter;
@@ -20,8 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
@@ -31,7 +27,6 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 public class SecurityConfig {
 
     private final UserService userService;
-    private final TokenUtils tokenUtils;
     private final ObjectMapper objectMapper;
     private final PrincipalDetailsService principalDetailsService;
 
@@ -69,7 +64,7 @@ public class SecurityConfig {
 
 //    @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
-        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(userService, tokenUtils);
+        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(userService);
         return tokenAuthenticationFilter;
     }
 

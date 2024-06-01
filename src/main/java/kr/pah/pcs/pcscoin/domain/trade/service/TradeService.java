@@ -178,7 +178,7 @@ public class TradeService {
         TradeLog tradeLog = tradeLogService.getTradeLogByIdx(tradeLogIdx);
 
         if (!tradeLog.getTradeType().equals(TradeType.PAYMENT))
-            throw new IllegalStateException("환불은 결제유형:거래 만 가능합니다.");
+            throw new IllegalStateException("환불은 결제유형:결제 만 가능합니다.");
 
         if (!tradeLog.getReceiveWallet().getUser().getKeys().getSecretKey().equals(secretKey))
             throw new IllegalStateException("잘못된 시크릿키 입니다.");
