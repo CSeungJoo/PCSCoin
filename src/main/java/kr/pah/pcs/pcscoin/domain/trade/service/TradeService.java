@@ -65,7 +65,7 @@ public class TradeService {
         Trade trade = Trade.builder()
                 .expiredTime(LocalDateTime.now().plusMinutes(5))
                 .tradeType(TradeType.TRANSFER)
-                .tradeId(transferTradeDto.getTradeId())
+                .tradeId(null)
                 .price(transferTradeDto.getPrice())
                 .sendWallet(sendWallet)
                 .receiveWallet(receviceWallet)

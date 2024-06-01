@@ -10,6 +10,5 @@ import java.math.BigDecimal;
 @Builder
 public class TransferTradeDto {
     private String phone;
-    private String tradeId;
     private BigDecimal price;
 }
